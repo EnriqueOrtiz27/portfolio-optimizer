@@ -26,6 +26,17 @@ the API to be quick to respond.
 
 The API url is `https://portfolio-optimizer-1034123727899.northamerica-south1.run.app/optimize-portfolio`
 
+Example cURL:
+
+```
+curl --request POST \
+  --url https://portfolio-optimizer-1034123727899.northamerica-south1.run.app/optimize-portfolio \
+  --header 'Content-Type: multipart/form-data' \
+  --form risk_level=1.0 \
+  --form max_weight=.5 \
+  --form file=@returns.csv
+```
+
 ## How to run the project locally 🚀
 
 ```
