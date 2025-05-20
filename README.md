@@ -9,7 +9,7 @@ The input must be a .csv file containing tickers in the header and rows of daily
 
 The project was developed in Python and uses [Ruff](https://docs.astral.sh/ruff/) as the code formatter of choice.
 
-## The Use of ChatGPT
+## The Use of ChatGPT 🤖
 
 I am no expert in portfolio optimization, so I tasked ChatGPT with the development of that portion of the code.
 **However, as a Backend Engineer, I AM responsible for code performance, so I wrote, to
@@ -17,23 +17,23 @@ the best of my ability, the corresponding unit tests
 to ensure the code works as it is supposed to.** Since I studied Economics, I could get up to date on portfolio
 optimization methods if given enough time to study 🤓.
 
-## How to test the API
+## How to test the API 🕵🏻‍
 
 The API was deployed using GCP's Cloud Run. CD was configured so that every commit to `main` triggers a deploy
-and updates the API. Please bear in mind that the `minimum number of instances` was configured to 0 to minimize costs,
+and updates the API. Please bear in mind that the minimum number of instances was configured to 0 to minimize costs,
 **so there might be a slight cold start in the first request you make to the API.** However, in local tests I have found
 the API to be quick to respond.
 
 The API url is `https://portfolio-optimizer-1034123727899.northamerica-south1.run.app/optimize-portfolio`
 
-## How to run locally 🚀
+## How to run the project locally 🚀
 
 ```
 docker build -t portfolio-optimizer .
 docker run -p 8080:8080 portfolio-optimizer
 ```
 
-Once running, the API will be available at http://localhost:8080.
+Once running, the API will be available at `http://0.0.0.0:8080`.
 
 This is an example cURL
 
@@ -51,7 +51,12 @@ The file `example_returns.csv` can be found in the root of the project.
 I recommend using an API platform like [Postman](https://www.postman.com/product/tools/) or [httpie](https://httpie.io/)
 to quickly test this.
 
-## Error Handling
+## Error Handling ⚠️
 
-* The API will return a `400 Bad Request` if the csv contains non-numeric data (outside the headers, of course) or fails
-  to load the csv for any other reason.
+The API returns meaningful HTTP error codes depending on the type of issue:
+
+- `400 Bad Request`: The CSV file is missing, unreadable, or contains non-numeric data (excluding the header).
+- `422 Unprocessable Entity`: Inputs are valid in format but result in an infeasible optimization problem (e.g., too
+  low `risk_level` or too restrictive `max_weight`).
+- `500 Internal Server Error`: Unexpected failure during optimization.
+  Please report this to enriqueortizcasillas@gmail.com (provide a sample curl and csv to facilitate debugging)

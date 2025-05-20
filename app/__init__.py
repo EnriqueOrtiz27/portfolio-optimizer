@@ -1,5 +1,5 @@
 from fastapi import FastAPI, File, Form, UploadFile
-from fastapi.exceptions import RequestValidationError
+from fastapi.exceptions import RequestValidationError, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
@@ -30,11 +30,12 @@ async def optimize_portfolio(
 
     try:
         weights = optimize_portfolio_weights(df, risk_level, max_weight)
+    except ValueError as e:
+        # Likely due to infeasible or bad user inputs
+        raise HTTPException(status_code=422, detail=str(e))
     except Exception as e:
-        return JSONResponse(
-            status_code=400,
-            content={"error": "Optimization failed", "details": str(e)}
-        )
+        # Unexpected failure
+        raise HTTPException(status_code=500, detail="Internal optimization error")
 
     optimal_portfolio = {
         ticker: round(weight, 4)

@@ -1,7 +1,7 @@
 import traceback
 
 from fastapi import Request, status
-from fastapi.exceptions import RequestValidationError
+from fastapi.exceptions import RequestValidationError, HTTPException
 from fastapi.responses import JSONResponse
 
 from app.errors import ErrorResponse, ErrorCode
@@ -28,9 +28,16 @@ async def validation_exception_handler(_: Request, exc: RequestValidationError):
 async def catch_exceptions_middleware(request: Request, call_next):
     try:
         return await call_next(request)
+    except HTTPException as e:
+        traceback.print_exc()
+        response = ErrorResponse(code=ErrorCode.bad_request, message=e.detail)
+        return JSONResponse(
+            content=response.model_dump(),
+            status_code=e.status_code
+        )
     except ValueError as e:
         traceback.print_exc()
-        message = "Please follow the readme guidelines"
+        message = "Please upload a valid CSV"
         response = ErrorResponse(code=ErrorCode.bad_request, message=message)
         return JSONResponse(
             content=response.model_dump(), status_code=status.HTTP_400_BAD_REQUEST
@@ -38,7 +45,7 @@ async def catch_exceptions_middleware(request: Request, call_next):
     except Exception as e:
         traceback.print_exc()
         response = ErrorResponse(
-            code=ErrorCode.unknown_error, message="please contact customer support"
+            code=ErrorCode.unknown_error, message="Something went wrong on our end and we will try to fix it."
         )
         return JSONResponse(
             content=response.model_dump(),
